@@ -21,6 +21,12 @@ function intToHex(integer) {
 function padToEven(a) {
   return a.length % 2 ? '0' + a : a;
 }
+function bufferToInt(buf) {
+  if (!buf || !buf.length) {
+    return 0;
+  }
+  return parseInt(Buffer.from(buf).toString('hex'), 16);
+}
 /** Transform an integer into a Buffer */
 function intToBuffer(integer) {
   var hex = intToHex(integer);
@@ -68,7 +74,19 @@ function hexToUint8Array(hexString) {
   return arrayBuffer;
 }
 
+function toHexString(byteArray, withPrefix = false) {
+  return (
+    (withPrefix ? '0x' : '') +
+    Array.from(byteArray, function (byte) {
+      // eslint-disable-next-line no-bitwise
+      return `0${(byte & 0xff).toString(16)}`.slice(-2);
+    }).join('')
+  );
+}
+
 module.exports = {
+  bufferToInt,
   toBuffer,
   hexToUint8Array,
+  toHexString,
 };

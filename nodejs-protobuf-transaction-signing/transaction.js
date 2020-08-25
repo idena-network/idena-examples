@@ -1,4 +1,9 @@
-const { toBuffer, hexToUint8Array } = require('./utils');
+const {
+  toBuffer,
+  hexToUint8Array,
+  bufferToInt,
+  toHexString,
+} = require('./utils');
 const messages = require('./proto/models_pb');
 const sha3 = require('js-sha3');
 const secp256k1 = require('secp256k1');
@@ -14,6 +19,28 @@ class Transaction {
     this.tips = tips || 0;
     this.payload = payload;
     this.signature = null;
+  }
+
+  fromHex(hex) {
+    return this.fromBytes(hexToUint8Array(hex));
+  }
+
+  fromBytes(bytes) {
+    const protoTx = messages.ProtoTransaction.deserializeBinary(bytes);
+
+    const protoTxData = protoTx.getData();
+    this.nonce = protoTxData.getNonce();
+    this.epoch = protoTxData.getEpoch();
+    this.type = protoTxData.getType();
+    this.to = toHexString(protoTxData.getTo(), true);
+    this.amount = bufferToInt(protoTxData.getAmount());
+    this.maxFee = bufferToInt(protoTxData.getMaxfee());
+    this.tips = bufferToInt(protoTxData.getTips());
+    this.payload = protoTxData.getPayload();
+
+    this.signature = protoTx.getSignature();
+
+    return this;
   }
 
   sign(key) {
