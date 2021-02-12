@@ -85,7 +85,7 @@ class Transaction {
     if (this.maxFee) {
       data.setMaxfee(toBuffer(this.maxFee));
     }
-    if (this.amount) {
+    if (this.tips) {
       data.setTips(toBuffer(this.tips));
     }
     if (this.payload) {
