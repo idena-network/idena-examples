@@ -14,7 +14,11 @@ import {useData} from './layout'
 export function useMultisig() {
   const {url, apiKey, privateKey} = useData()
 
-  const coinbase = privateKeyToAddress(privateKey)
+  let coinbase = '0x'
+  try {
+    coinbase = privateKeyToAddress(privateKey)
+    // eslint-disable-next-line no-empty
+  } catch {}
 
   const provider = IdenaProvider.create(url, apiKey)
 

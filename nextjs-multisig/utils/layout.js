@@ -4,14 +4,23 @@ import {useState, createContext, useContext} from 'react'
 
 const DataContext = createContext()
 
+function Address({privateKey}) {
+  let address = '0x'
+  try {
+    address = privateKeyToAddress(privateKey)
+  } catch {
+    address = 'private key is invalid'
+  }
+
+  return <Box p={4}>Your address : {address}</Box>
+}
+
 export default function Layout({children, ...props}) {
   const [state, setState] = useState({
     url: '',
     apiKey: '',
     privateKey: '',
   })
-
-  const address = privateKeyToAddress(state.privateKey)
 
   return (
     <DataContext.Provider value={state} {...props}>
@@ -42,7 +51,7 @@ export default function Layout({children, ...props}) {
         />
       </Stack>
       <Divider />
-      <Box p={4}>Your address : {address}</Box>
+      <Address privateKey={state.privateKey} />
 
       <Divider />
       {children}
