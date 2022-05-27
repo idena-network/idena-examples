@@ -17,8 +17,8 @@ export default function Layout({children, ...props}) {
     }
   }, [])
 
-  const saveSettings = () => {
-    localStorage.setItem('multisig-settings', JSON.stringify(state))
+  const saveSettings = (settings) => {
+    localStorage.setItem('multisig-settings', JSON.stringify(settings))
   }
 
   return (
@@ -28,27 +28,33 @@ export default function Layout({children, ...props}) {
           placeholder="Node URL"
           value={state.url}
           onChange={(e) => {
-            setState((prevState) => ({...prevState, url: e.target.value}))
-            saveSettings()
+            setState((prevState) => {
+              const newState = {...prevState, url: e.target.value}
+              saveSettings(newState)
+              return newState
+            })
           }}
         />
         <Input
           placeholder="Node Api key"
           value={state.apiKey}
           onChange={(e) => {
-            setState((prevState) => ({...prevState, apiKey: e.target.value}))
-            saveSettings()
+            setState((prevState) => {
+              const newState = {...prevState, apiKey: e.target.value}
+              saveSettings(newState)
+              return newState
+            })
           }}
         />
         <Input
           placeholder="Sender address"
           value={state.sender}
           onChange={(e) => {
-            setState((prevState) => ({
-              ...prevState,
-              sender: e.target.value,
-            }))
-            saveSettings()
+            setState((prevState) => {
+              const newState = {...prevState, sender: e.target.value}
+              saveSettings(newState)
+              return newState
+            })
           }}
         />
       </Stack>
