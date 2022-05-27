@@ -88,7 +88,7 @@ export default function Home() {
                 <Input name="max" />
               </FormControl>
               <FormControl>
-                <FormLabel>Amount</FormLabel>
+                <FormLabel>Stake</FormLabel>
                 <Input name="amount" />
               </FormControl>
               <Button type="submit">Deploy</Button>
