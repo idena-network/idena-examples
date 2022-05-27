@@ -3,22 +3,29 @@ import {
   ContractArgumentFormat,
   DeployContractAttachment,
   EmbeddedContractType,
-  floatStringToDna,
+  calculateGasCost,
   IdenaProvider,
-  privateKeyToAddress,
   TransactionType,
 } from 'idena-sdk-js'
+import {useRouter} from 'next/router'
 
 import {useData} from './layout'
 
 export function useMultisig() {
-  const {url, apiKey, privateKey} = useData()
+  const {url, apiKey, sender} = useData()
 
-  let coinbase = '0x'
-  try {
-    coinbase = privateKeyToAddress(privateKey)
-    // eslint-disable-next-line no-empty
-  } catch {}
+  const router = useRouter()
+
+  const sendTx = (tx) => {
+    const dnaUrl = new URL(
+      `dna/raw?tx=${tx.toHex()}&callback_format=html&callback_url=${
+        process.env.NEXT_PUBLIC_CALLBACK_URL
+      }`,
+      process.env.NEXT_PUBLIC_IDENA_APP
+    )
+
+    router.push(dnaUrl)
+  }
 
   const provider = IdenaProvider.create(url, apiKey)
 
@@ -36,23 +43,19 @@ export function useMultisig() {
     ])
 
     const tx = await provider.Blockchain.buildTx({
-      from: coinbase,
+      from: sender,
       type: TransactionType.CallContractTx,
       to: contract,
       payload: callAttachment.toBytes(),
     })
 
-    tx.sign(privateKey)
+    const feePerGas = await provider.Blockchain.feePerGas()
+    const addGas = 2000
 
-    const estimateResult = await provider.Blockchain.estimateTx(tx)
+    // calculate total TX cost
+    tx.maxFee = calculateGasCost(feePerGas, tx.gas + addGas)
 
-    tx.maxFee = floatStringToDna(estimateResult.receipt.gasCost).add(
-      floatStringToDna(estimateResult.receipt.txFee)
-    )
-
-    tx.sign(privateKey)
-
-    return provider.Blockchain.sendTx(tx)
+    sendTx(tx)
   }
 
   const send = async function (contract, destination, amount) {
@@ -74,23 +77,19 @@ export function useMultisig() {
     ])
 
     const tx = await provider.Blockchain.buildTx({
-      from: coinbase,
+      from: sender,
       type: TransactionType.CallContractTx,
       to: contract,
       payload: callAttachment.toBytes(),
     })
 
-    tx.sign(privateKey)
+    const feePerGas = await provider.Blockchain.feePerGas()
+    const sendGas = 2000
 
-    const estimateResult = await provider.Blockchain.estimateTx(tx)
+    // calculate total TX cost
+    tx.maxFee = calculateGasCost(feePerGas, tx.gas + sendGas)
 
-    tx.maxFee = floatStringToDna(estimateResult.receipt.gasCost).add(
-      floatStringToDna(estimateResult.receipt.txFee)
-    )
-
-    tx.sign(privateKey)
-
-    return provider.Blockchain.sendTx(tx)
+    sendTx(tx)
   }
 
   const push = async function (contract, destination, amount) {
@@ -112,23 +111,19 @@ export function useMultisig() {
     ])
 
     const tx = await provider.Blockchain.buildTx({
-      from: coinbase,
+      from: sender,
       type: TransactionType.CallContractTx,
       to: contract,
       payload: callAttachment.toBytes(),
     })
 
-    tx.sign(privateKey)
+    const feePerGas = await provider.Blockchain.feePerGas()
+    const pushGas = 2500
 
-    const estimateResult = await provider.Blockchain.estimateTx(tx)
+    // calculate total TX cost
+    tx.maxFee = calculateGasCost(feePerGas, tx.gas + pushGas)
 
-    tx.maxFee = floatStringToDna(estimateResult.receipt.gasCost).add(
-      floatStringToDna(estimateResult.receipt.txFee)
-    )
-
-    tx.sign(privateKey)
-
-    return provider.Blockchain.sendTx(tx)
+    sendTx(tx)
   }
 
   const deploy = async function (m, n, amount) {
@@ -146,28 +141,25 @@ export function useMultisig() {
 
     // build deploy tx through node (epoch, nonce will by filled automatically by node)
     const tx = await provider.Blockchain.buildTx({
-      from: coinbase,
+      from: sender,
       type: TransactionType.DeployContractTx,
       amount,
       payload: deployAttachment.toBytes(),
     })
 
+    const feePerGas = await provider.Blockchain.feePerGas()
+    const deployGas = 1300
+
+    // calculate total TX cost
+    tx.maxFee = calculateGasCost(feePerGas, tx.gas + deployGas)
+
     // sign transaction
-    tx.sign(privateKey)
-
-    // need estimate to get receipt, contract hash and estimation fees
-    const estimateResult = await provider.Blockchain.estimateTx(tx)
-
-    tx.maxFee = floatStringToDna(estimateResult.receipt.gasCost).add(
-      floatStringToDna(estimateResult.receipt.txFee)
-    )
-
-    tx.sign(privateKey)
+    // tx.sign(privateKey)
 
     // deploy contract
-    const txHash = await provider.Blockchain.sendTx(tx)
+    // return provider.Blockchain.sendTx(tx)
 
-    return {contractHash: estimateResult.receipt.contract, txHash}
+    sendTx(tx)
   }
 
   const readOwner = async function (contract) {

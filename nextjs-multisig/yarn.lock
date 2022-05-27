@@ -2339,10 +2339,10 @@
     "domutils" "^2.8.0"
     "entities" "^3.0.1"
 
-"idena-sdk-js@^0.0.8":
-  "integrity" "sha512-uk34SmtjxLYLjpxQ3NxeBI7Z8yjhjApXIH7H41Egb1yx+LFAcLgVzfRS+UZrwMcUQqxVwMzbxTwGF6k/uFcNlw=="
-  "resolved" "https://registry.npmjs.org/idena-sdk-js/-/idena-sdk-js-0.0.8.tgz"
-  "version" "0.0.8"
+"idena-sdk-js@^0.0.10":
+  "integrity" "sha512-tpdhwbAm+8DkVEoKsXOilt+R3SJ/p8OnGtsrPDGuD4xqo37JRCTp+ZhJnvY/z0bkiwioiSkQFPztyUFbrrvCUg=="
+  "resolved" "https://registry.npmjs.org/idena-sdk-js/-/idena-sdk-js-0.0.10.tgz"
+  "version" "0.0.10"
   dependencies:
     "axios" "^0.27.2"
     "bn.js" "^5.2.0"

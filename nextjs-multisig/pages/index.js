@@ -9,6 +9,7 @@ import {
   Input,
   Stack,
 } from '@chakra-ui/react'
+import {useRouter} from 'next/router'
 import {useState} from 'react'
 import {useMultisig} from '../utils/multisig'
 
@@ -41,6 +42,9 @@ function Action({title, children, ...props}) {
 
 export default function Home() {
   const [data, setData] = useState([])
+  const router = useRouter()
+
+  const hash = router.query.tx
 
   const addData = (action, result) =>
     setData((prevData) => [
@@ -269,6 +273,7 @@ export default function Home() {
               ev.preventDefault()
               const formData = new FormData(ev.target)
 
+              // eslint-disable-next-line no-shadow
               const hash = formData.get('tx')
 
               try {
@@ -297,6 +302,9 @@ export default function Home() {
         {data.map((item, idx) => (
           <OutputResponse key={idx} {...item} />
         ))}
+        {hash && (
+          <OutputResponse key="dna-link-hash" action="dna link" result={hash} />
+        )}
       </Box>
     </Flex>
   )

@@ -1,26 +1,25 @@
-import {Box, Divider, Input, Stack} from '@chakra-ui/react'
-import {privateKeyToAddress} from 'idena-sdk-js'
-import {useState, createContext, useContext} from 'react'
+import {Divider, Input, Stack} from '@chakra-ui/react'
+import {useState, useEffect, createContext, useContext} from 'react'
 
 const DataContext = createContext()
 
-function Address({privateKey}) {
-  let address = '0x'
-  try {
-    address = privateKeyToAddress(privateKey)
-  } catch {
-    address = 'private key is invalid'
-  }
-
-  return <Box p={4}>Your address : {address}</Box>
-}
-
 export default function Layout({children, ...props}) {
   const [state, setState] = useState({
-    url: '',
-    apiKey: '',
-    privateKey: '',
+    url: process.env.NEXT_PUBLIC_NODE_URL,
+    apiKey: process.env.NEXT_PUBLIC_NODE_KEY,
+    sender: '',
   })
+
+  useEffect(() => {
+    const settings = localStorage.getItem('multisig-settings')
+    if (settings) {
+      setState(JSON.parse(settings))
+    }
+  }, [])
+
+  const saveSettings = () => {
+    localStorage.setItem('multisig-settings', JSON.stringify(state))
+  }
 
   return (
     <DataContext.Provider value={state} {...props}>
@@ -28,31 +27,31 @@ export default function Layout({children, ...props}) {
         <Input
           placeholder="Node URL"
           value={state.url}
-          onChange={(e) =>
+          onChange={(e) => {
             setState((prevState) => ({...prevState, url: e.target.value}))
-          }
+            saveSettings()
+          }}
         />
         <Input
           placeholder="Node Api key"
           value={state.apiKey}
-          onChange={(e) =>
+          onChange={(e) => {
             setState((prevState) => ({...prevState, apiKey: e.target.value}))
-          }
+            saveSettings()
+          }}
         />
         <Input
-          placeholder="Private key"
-          value={state.privateKey}
-          onChange={(e) =>
+          placeholder="Sender address"
+          value={state.sender}
+          onChange={(e) => {
             setState((prevState) => ({
               ...prevState,
-              privateKey: e.target.value,
+              sender: e.target.value,
             }))
-          }
+            saveSettings()
+          }}
         />
       </Stack>
-      <Divider />
-      <Address privateKey={state.privateKey} />
-
       <Divider />
       {children}
     </DataContext.Provider>
