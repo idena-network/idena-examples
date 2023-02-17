@@ -19,7 +19,7 @@ export class DeployContractAttachment {
 
   toBytes() {
     const data = new messages.ProtoDeployContractAttachment()
-    data.setCodehash(new Uint8Array(this.codeHash))
+    data.setCodehash(new Uint8Array([this.codeHash]))
     for (let i = 0; i < this.args.length; i += 1) {
       data.addArgs(new Uint8Array(this.args[i]))
     }
